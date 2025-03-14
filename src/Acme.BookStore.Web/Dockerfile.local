@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+COPY bin/Release/net9.0/publish/ app/
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+RUN dotnet dev-certs https -v -ep openiddict.pfx -p 6b1af76c-ec6d-46cd-a5e1-23c52928ae6f
+
+FROM base AS final
+WORKDIR /app
+COPY --from=build /src .
+
+ENTRYPOINT ["dotnet", "Acme.BookStore.Web.dll"]
