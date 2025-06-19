@@ -18,7 +18,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Books;
 
-[Authorize(BookStorePermissions.Books.Default)]
+[Authorize(AuthenticationSchemes = "Bearer,TempJwt", Policy = BookStorePermissions.Books.Default)]
 public class BookAppService : 
     CrudAppService<Book, BookDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateBookDto>,
     IBookAppService

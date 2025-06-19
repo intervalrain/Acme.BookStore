@@ -27,10 +27,7 @@ public class EfCoreAuthorRepository(IDbContextProvider<BookStoreDbContext> dbCon
     {
         var authors = await GetDbSetAsync();
         return await authors
-            .WhereIf(
-                !filter.IsNullOrWhiteSpace(),
-                author => author.Name.Contains(filter)
-            )
+            .WhereIf(filter != null, author => author.Name.Contains(filter!))
             .OrderBy(sorting)
             .Skip(skipCount)
             .Take(maxResultCount)

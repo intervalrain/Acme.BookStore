@@ -15,7 +15,7 @@ public class Book(string name, BookType type, DateTime publishDate, float price,
     public DateTime PublishDate { get; set; } = publishDate;
     public float Price { get; set; } = price;
     public Guid AuthorId { get; set; } = authorId;
-    public virtual Author Author { get; set; }
+    public virtual Author? Author { get; set; } 
 
     public Guid? TenantId { get; set; }
     public override DateTime CreationTime { get; set; }

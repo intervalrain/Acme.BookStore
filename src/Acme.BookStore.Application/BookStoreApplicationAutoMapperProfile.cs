@@ -10,7 +10,7 @@ public class BookStoreApplicationAutoMapperProfile : Profile
     public BookStoreApplicationAutoMapperProfile()
     {
         CreateMap<Book, BookDto>()
-            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.Name));
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author != null ? src.Author.Name : string.Empty));
         CreateMap<BookDto, Book>();
         CreateMap<BookDto, CreateUpdateBookDto>();
         CreateMap<CreateUpdateBookDto, Book>();
