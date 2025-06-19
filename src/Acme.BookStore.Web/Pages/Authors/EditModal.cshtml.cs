@@ -10,7 +10,7 @@ namespace Acme.BookStore.Web.Pages.Authors;
 public class EditModalModel(IAuthorAppService authorAppService) : BookStorePageModel
 {
     [BindProperty]
-    public EditAuthorViewModel Author { get; set; }
+    public required EditAuthorViewModel Author { get; set; }
 
     private readonly IAuthorAppService _authorAppService = authorAppService;
 
@@ -37,13 +37,13 @@ public class EditModalModel(IAuthorAppService authorAppService) : BookStorePageM
 
         [Required]
         [StringLength(AuthorConsts.MaxNameLength)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Required]
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
         [TextArea]
-        public string ShortBio { get; set; }
+        public string ShortBio { get; set; } = string.Empty;
     }
 }

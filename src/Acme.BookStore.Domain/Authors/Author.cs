@@ -14,7 +14,7 @@ public class Author : FullAuditedAggregateRoot<Guid>
     
     protected Author() { }
 
-    internal Author(
+    public Author(
         Guid id,
         [NotNull] string name,
         DateTime birthDate,
@@ -25,7 +25,7 @@ public class Author : FullAuditedAggregateRoot<Guid>
         ShortBio = shortBio;
     }
 
-    internal Author ChangeName([NotNull] string name)
+    public Author ChangeName([NotNull] string name)
     {
         SetName(name);
         return this;

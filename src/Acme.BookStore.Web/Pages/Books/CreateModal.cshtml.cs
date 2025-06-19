@@ -15,8 +15,8 @@ namespace Acme.BookStore.Web.Pages.Books;
 public class CreateModalModel(IBookAppService bookAppService) : BookStorePageModel
 {
     [BindProperty]
-    public CreateBookViewModel Book { get; set; }
-    public List<SelectListItem> Authors { get; set; }
+    public required CreateBookViewModel Book { get; set; }
+    public required List<SelectListItem> Authors { get; set; }
 
     private readonly IBookAppService _bookAppService = bookAppService;
 

@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Uow;
 
 namespace Acme.BookStore.Authors;
 
@@ -17,6 +19,7 @@ public class AuthorAppService(IAuthorRepository repository, AuthorManager mgr) :
 {
     private readonly IAuthorRepository _repository = repository;
     private readonly AuthorManager _mgr = mgr;
+
 
     public async Task<AuthorDto> GetAsync(Guid id)
     {

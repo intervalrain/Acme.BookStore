@@ -21,7 +21,8 @@ public class Program
 
         try
         {
-            var outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] [{Namespace}::{SourceFile}::{Method} @ {LineNumber}] {Message:lj}{NewLine}{Exception}";
+            // var outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] [{Namespace}::{SourceFile}::{Method} @ {LineNumber}] {Message:lj}{NewLine}{Exception}";
+            var outputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
             Log.Information("Starting web host.");
             var builder = WebApplication.CreateBuilder(args);
             builder.Host
