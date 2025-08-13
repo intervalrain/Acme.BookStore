@@ -6,7 +6,8 @@
       "Bash(curl:*)",
       "Bash(lsof:*)",
       "Bash(dotnet run:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

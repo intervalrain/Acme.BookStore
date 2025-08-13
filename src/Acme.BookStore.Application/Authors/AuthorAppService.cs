@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
-using Volo.Abp.Uow;
 
 namespace Acme.BookStore.Authors;
 
@@ -29,7 +27,6 @@ public class AuthorAppService(IAuthorRepository repository, AuthorManager mgr) :
 
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)
     {
-        Logger.LogInformation("=============test=============");
 
         if (input.Sorting.IsNullOrWhiteSpace())
         {

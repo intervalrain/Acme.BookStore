@@ -39,6 +39,8 @@ using System;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -53,6 +55,8 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.SettingManagement.Web;
 using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.Timing;
+using Acme.BookStore.Web.Swagger;
+using Acme.BookStore.Web.Auth;
 
 namespace Acme.BookStore.Web;
 
@@ -199,7 +203,11 @@ public class BookStoreWebModule : AbpModule
         var secretKey = configuration["TempAuth:SecretKey"] ?? "ThisIsMySecretKeyForJwtTokenGeneration12345";
         var key = Encoding.UTF8.GetBytes(secretKey);
         
-        context.Services.AddAuthentication()
+        context.Services.AddAuthentication(options =>
+            {
+                // 保持現有的默認方案，但添加我們的JWT方案
+                options.DefaultScheme = "Identity.Application"; // ABP的默認方案
+            })
             .AddJwtBearer("TempJwt", options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -211,7 +219,24 @@ public class BookStoreWebModule : AbpModule
                     ValidIssuer = configuration["TempAuth:Issuer"] ?? "BookStore",
                     ValidAudience = configuration["TempAuth:Audience"] ?? "BookStore",
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
+                };
+                
+                // 添加事件處理來調試認證過程
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine($"JWT Token validated for user: {context.Principal?.Identity?.Name}");
+                        return Task.CompletedTask;
+                    }
                 };
             });
         
@@ -219,6 +244,9 @@ public class BookStoreWebModule : AbpModule
         {
             options.IsDynamicClaimsEnabled = true;
         });
+        
+        // 註冊Claims轉換服務
+        context.Services.AddTransient<IClaimsTransformation, JwtClaimsTransformation>();
     }
 
     private void ConfigureAutoMapper()
@@ -290,21 +318,8 @@ public class BookStoreWebModule : AbpModule
                     Scheme = "Bearer"
                 });
 
-                // Add JWT Bearer Security Requirement
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
+                // 添加自定義操作過濾器來自動處理SecurityRequirement
+                options.OperationFilter<AuthorizeCheckOperationFilter>();
             }
         );
     }
