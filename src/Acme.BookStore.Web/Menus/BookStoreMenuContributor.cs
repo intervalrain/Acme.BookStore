@@ -66,10 +66,10 @@ public class BookStoreMenuContributor : IMenuContributor
         {
             administration.SetSubItemOrder(TenantManagementMenuNames.GroupName, 1);
         }
-        else
-        {
-            administration.TryRemoveMenuItem(TenantManagementMenuNames.GroupName);
-        }
+        // else
+        // {
+        //     administration.TryRemoveMenuItem(TenantManagementMenuNames.GroupName);
+        // }
         
         administration.SetSubItemOrder(SettingManagementMenuNames.GroupName, 3);
 

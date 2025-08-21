@@ -13,6 +13,7 @@ public abstract class AuthorAppService_Tests<TStartupModule> : BookStoreApplicat
     where TStartupModule : IAbpModule
 {
     private readonly IAuthorAppService _authorAppService;
+    private const string _myName = "admin";
 
     public AuthorAppService_Tests()
     {
@@ -33,8 +34,8 @@ public abstract class AuthorAppService_Tests<TStartupModule> : BookStoreApplicat
     public async Task Should_Get_Filtered_Authors()
     {
         var result = await _authorAppService.GetListAsync(
-            new GetAuthorListDto{ Filter = "George" });
-        
+            new GetAuthorListDto { Filter = "George" });
+
         result.TotalCount.ShouldBeGreaterThanOrEqualTo(1);
         result.Items.ShouldContain(author => author.Name == "George Orwell");
         result.Items.ShouldNotContain(author => author.Name == "Douglas Adams");
@@ -47,7 +48,7 @@ public abstract class AuthorAppService_Tests<TStartupModule> : BookStoreApplicat
             new CreateAuthorDto
             {
                 Name = "Edward Bellamy",
-                BirthDate = new DateTime(1850, 05, 22), 
+                BirthDate = new DateTime(1850, 05, 22),
                 ShortBio = "Edward Bellamy was an American author"
             }
         );
@@ -64,12 +65,11 @@ public abstract class AuthorAppService_Tests<TStartupModule> : BookStoreApplicat
             await _authorAppService.CreateAsync(
                 new CreateAuthorDto
                 {
-                    Name = "Douglas Adams", 
-                    BirthDate = DateTime.Now, 
+                    Name = "Douglas Adams",
+                    BirthDate = DateTime.Now,
                     ShortBio = "..."
                 }
             );
         });
     }
-
 }

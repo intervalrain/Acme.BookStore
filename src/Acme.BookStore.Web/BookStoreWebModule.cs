@@ -38,7 +38,12 @@ using Volo.Abp.TenantManagement.Web;
 using System;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Toolbars;
@@ -49,6 +54,9 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.SettingManagement.Web;
 using Volo.Abp.Studio.Client.AspNetCore;
+using Volo.Abp.Timing;
+using Acme.BookStore.Web.Swagger;
+using Acme.BookStore.Web.Auth;
 
 namespace Acme.BookStore.Web;
 
@@ -127,7 +135,7 @@ public class BookStoreWebModule : AbpModule
             {
                 options.DisableTransportSecurityRequirement = true;
             });
-            
+
             Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
@@ -153,6 +161,11 @@ public class BookStoreWebModule : AbpModule
             options.Conventions.AuthorizePage("/Books/Index", BookStorePermissions.Books.Default);
             options.Conventions.AuthorizePage("/Books/CreateModal", BookStorePermissions.Books.Create);
             options.Conventions.AuthorizePage("/Books/EditModal", BookStorePermissions.Books.Edit);
+        });
+
+        Configure<AbpClockOptions>(options =>
+        {
+            options.Kind = DateTimeKind.Utc;
         });
     }
 
@@ -182,11 +195,58 @@ public class BookStoreWebModule : AbpModule
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+        
         context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        
+        // 配置臨時JWT驗證
+        var secretKey = configuration["TempAuth:SecretKey"] ?? "ThisIsMySecretKeyForJwtTokenGeneration12345";
+        var key = Encoding.UTF8.GetBytes(secretKey);
+        
+        context.Services.AddAuthentication(options =>
+            {
+                // 保持現有的默認方案，但添加我們的JWT方案
+                options.DefaultScheme = "Identity.Application"; // ABP的默認方案
+            })
+            .AddJwtBearer("TempJwt", options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["TempAuth:Issuer"] ?? "BookStore",
+                    ValidAudience = configuration["TempAuth:Audience"] ?? "BookStore",
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero,
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
+                };
+                
+                // 添加事件處理來調試認證過程
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine($"JWT Token validated for user: {context.Principal?.Identity?.Name}");
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+        
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {
             options.IsDynamicClaimsEnabled = true;
         });
+        
+        // 註冊Claims轉換服務
+        context.Services.AddTransient<IClaimsTransformation, JwtClaimsTransformation>();
     }
 
     private void ConfigureAutoMapper()
@@ -244,6 +304,22 @@ public class BookStoreWebModule : AbpModule
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "BookStore API", Version = "v1" });
                 options.DocInclusionPredicate((docName, description) => true);
                 options.CustomSchemaIds(type => type.FullName);
+                
+                // Enable Swagger annotations
+                options.EnableAnnotations();
+
+                // Add JWT Bearer Security Definition
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                // 添加自定義操作過濾器來自動處理SecurityRequirement
+                options.OperationFilter<AuthorizeCheckOperationFilter>();
             }
         );
     }

@@ -18,7 +18,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Books;
 
-[Authorize(BookStorePermissions.Books.Default)]
+[Authorize(AuthenticationSchemes = "Bearer,TempJwt", Policy = BookStorePermissions.Books.Default)]
 public class BookAppService : 
     CrudAppService<Book, BookDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateBookDto>,
     IBookAppService
@@ -63,7 +63,7 @@ public class BookAppService :
     //     var query = from book in queryable
     //                 join author in await _authorRepository.GetQueryableAsync() on book.AuthorId equals author.Id
     //                 select new { book, author };
-        
+
     //     query = query
     //         .OrderBy(NormalizeSorting(input.Sorting))
     //         .Skip(input.SkipCount)
