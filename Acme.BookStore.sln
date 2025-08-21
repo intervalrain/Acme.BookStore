@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Acme.BookStore.DbMigrator",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acme.BookStore.Infrastructure", "src\Acme.BookStore.Infrastructure\Acme.BookStore.Infrastructure.csproj", "{58FAFB8D-5C6E-4957-8D40-7856B57CBF10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EdgeSync.Common.Net", "src\EdgeSync.Common.Net\EdgeSync.Common.Net.csproj", "{30FE4713-BCDD-48F6-9C42-13185405B610}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,10 @@ Global
 		{58FAFB8D-5C6E-4957-8D40-7856B57CBF10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58FAFB8D-5C6E-4957-8D40-7856B57CBF10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58FAFB8D-5C6E-4957-8D40-7856B57CBF10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30FE4713-BCDD-48F6-9C42-13185405B610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30FE4713-BCDD-48F6-9C42-13185405B610}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30FE4713-BCDD-48F6-9C42-13185405B610}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30FE4713-BCDD-48F6-9C42-13185405B610}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -130,6 +136,7 @@ Global
 		{EF480016-9127-4916-8735-D2466BDBC582} = {04DBDB01-70F4-4E06-B468-8F87850B22BE}
 		{70680696-BB1E-4383-BCB2-42C3767171FB} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
 		{58FAFB8D-5C6E-4957-8D40-7856B57CBF10} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
+		{30FE4713-BCDD-48F6-9C42-13185405B610} = {CA9AC87F-097E-4F15-8393-4BC07735A5B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28315BFD-90E7-4E14-A2EA-F3D23AF4126F}

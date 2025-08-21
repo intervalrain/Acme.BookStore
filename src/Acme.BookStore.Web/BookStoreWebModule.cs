@@ -1,62 +1,57 @@
+using System;
 using System.IO;
+using System.Text;
+using Acme.BookStore.EntityFrameworkCore;
+using Acme.BookStore.Localization;
+using Acme.BookStore.MultiTenancy;
+using Acme.BookStore.Permissions;
+using Acme.BookStore.Web.Auth;
+using Acme.BookStore.Web.Menus;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Acme.BookStore.EntityFrameworkCore;
-using Acme.BookStore.Localization;
-using Acme.BookStore.MultiTenancy;
-using Acme.BookStore.Permissions;
-using Acme.BookStore.Web.Menus;
 using Microsoft.OpenApi.Models;
-using Volo.Abp;
-using Volo.Abp.Studio;
-using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.AspNetCore.Mvc.Localization;
-using Volo.Abp.AspNetCore.Mvc.UI;
-using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
-using Volo.Abp.Autofac;
-using Volo.Abp.AutoMapper;
-using Volo.Abp.Modularity;
-using Volo.Abp.PermissionManagement;
-using Volo.Abp.PermissionManagement.Web;
-using Volo.Abp.UI.Navigation.Urls;
-using Volo.Abp.UI;
-using Volo.Abp.UI.Navigation;
-using Volo.Abp.VirtualFileSystem;
-using Volo.Abp.Identity.Web;
-using Volo.Abp.FeatureManagement;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
-using Volo.Abp.TenantManagement.Web;
-using System;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Volo.Abp;
 using Volo.Abp.Account.Web;
+using Volo.Abp.AspNetCore.Mvc;
+using Volo.Abp.AspNetCore.Mvc.Localization;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Toolbars;
 using Volo.Abp.AspNetCore.Serilog;
-using Volo.Abp.Identity;
-using Volo.Abp.Swashbuckle;
+using Volo.Abp.AutoMapper;
+using Volo.Abp.Autofac;
+using Volo.Abp.FeatureManagement;
+using Volo.Abp.Identity.Web;
+using Volo.Abp.Modularity;
 using Volo.Abp.OpenIddict;
+using Volo.Abp.PermissionManagement;
 using Volo.Abp.Security.Claims;
-using Volo.Abp.SettingManagement.Web;
 using Volo.Abp.Studio.Client.AspNetCore;
+using Volo.Abp.Swashbuckle;
+using Volo.Abp.TenantManagement.Web;
 using Volo.Abp.Timing;
+using Volo.Abp.UI.Navigation;
+using Volo.Abp.UI.Navigation.Urls;
+using Volo.Abp.VirtualFileSystem;
+using EdgeSync.Common.Swagger;
 using Acme.BookStore.Web.Swagger;
-using Acme.BookStore.Web.Auth;
+using EdgeSync.Common.Net.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 
 namespace Acme.BookStore.Web;
 
@@ -294,6 +289,11 @@ public class BookStoreWebModule : AbpModule
         {
             options.ConventionalControllers.Create(typeof(BookStoreApplicationModule).Assembly);
         });
+        
+        Configure<MvcOptions>(options =>
+        {
+            options.Filters.Add<EdgeSyncExceptionFilter>();
+        });
     }
 
     private void ConfigureSwaggerServices(IServiceCollection services)
@@ -307,6 +307,9 @@ public class BookStoreWebModule : AbpModule
                 
                 // Enable Swagger annotations
                 options.EnableAnnotations();
+
+                // Enable EdgeSync Swagger Api Group
+                options.AddApiGroup();
 
                 // Add JWT Bearer Security Definition
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -364,7 +367,7 @@ public class BookStoreWebModule : AbpModule
         app.UseSwagger();
         app.UseAbpSwaggerUI(options =>
         {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "BookStore API");
+            options.ConfigureEdgeSyncSwaggerUIOptions();
         });
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
