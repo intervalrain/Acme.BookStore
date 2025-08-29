@@ -7,7 +7,8 @@
       "Bash(lsof:*)",
       "Bash(dotnet run:*)",
       "Bash(find:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(dotnet restore:*)"
     ],
     "deny": []
   }

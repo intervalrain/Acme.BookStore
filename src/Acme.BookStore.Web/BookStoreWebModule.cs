@@ -13,11 +13,8 @@ using Acme.BookStore.Permissions;
 using Acme.BookStore.Web.Menus;
 using Microsoft.OpenApi.Models;
 using Volo.Abp;
-using Volo.Abp.Studio;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.Localization;
-using Volo.Abp.AspNetCore.Mvc.UI;
-using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
@@ -25,9 +22,7 @@ using Volo.Abp.Autofac;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
-using Volo.Abp.PermissionManagement.Web;
 using Volo.Abp.UI.Navigation.Urls;
-using Volo.Abp.UI;
 using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.Identity.Web;
@@ -36,7 +31,6 @@ using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using Volo.Abp.TenantManagement.Web;
 using System;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
@@ -48,11 +42,9 @@ using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared.Toolbars;
 using Volo.Abp.AspNetCore.Serilog;
-using Volo.Abp.Identity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.Security.Claims;
-using Volo.Abp.SettingManagement.Web;
 using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.Timing;
 using Acme.BookStore.Web.Swagger;
@@ -202,43 +194,43 @@ public class BookStoreWebModule : AbpModule
         // 配置臨時JWT驗證
         var secretKey = configuration["TempAuth:SecretKey"] ?? "ThisIsMySecretKeyForJwtTokenGeneration12345";
         var key = Encoding.UTF8.GetBytes(secretKey);
-        
+
         context.Services.AddAuthentication(options =>
             {
                 // 保持現有的默認方案，但添加我們的JWT方案
                 options.DefaultScheme = "Identity.Application"; // ABP的默認方案
-            })
-            .AddJwtBearer("TempJwt", options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["TempAuth:Issuer"] ?? "BookStore",
-                    ValidAudience = configuration["TempAuth:Audience"] ?? "BookStore",
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero,
-                    NameClaimType = ClaimTypes.Name,
-                    RoleClaimType = ClaimTypes.Role
-                };
-                
-                // 添加事件處理來調試認證過程
-                options.Events = new JwtBearerEvents
-                {
-                    OnAuthenticationFailed = context =>
-                    {
-                        Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        Console.WriteLine($"JWT Token validated for user: {context.Principal?.Identity?.Name}");
-                        return Task.CompletedTask;
-                    }
-                };
             });
+            // .AddJwtBearer("TempJwt", options =>
+            // {
+            //     options.TokenValidationParameters = new TokenValidationParameters
+            //     {
+            //         ValidateIssuer = true,
+            //         ValidateAudience = true,
+            //         ValidateLifetime = true,
+            //         ValidateIssuerSigningKey = true,
+            //         ValidIssuer = configuration["TempAuth:Issuer"] ?? "BookStore",
+            //         ValidAudience = configuration["TempAuth:Audience"] ?? "BookStore",
+            //         IssuerSigningKey = new SymmetricSecurityKey(key),
+            //         ClockSkew = TimeSpan.Zero,
+            //         NameClaimType = ClaimTypes.Name,
+            //         RoleClaimType = ClaimTypes.Role
+            //     };
+                
+            //     // 添加事件處理來調試認證過程
+            //     options.Events = new JwtBearerEvents
+            //     {
+            //         OnAuthenticationFailed = context =>
+            //         {
+            //             Console.WriteLine($"JWT Authentication failed: {context.Exception.Message}");
+            //             return Task.CompletedTask;
+            //         },
+            //         OnTokenValidated = context =>
+            //         {
+            //             Console.WriteLine($"JWT Token validated for user: {context.Principal?.Identity?.Name}");
+            //             return Task.CompletedTask;
+            //         }
+            //     };
+            // });
         
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {

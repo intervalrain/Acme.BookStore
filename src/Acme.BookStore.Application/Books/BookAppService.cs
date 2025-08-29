@@ -1,24 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-
 using Acme.BookStore.Authors;
-
-using Acme.BookStore.Permissions;
-
-using Microsoft.AspNetCore.Authorization;
-
 using Volo.Abp.Application.Dtos;
-
 using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Books;
 
-[Authorize(AuthenticationSchemes = "Bearer,TempJwt", Policy = BookStorePermissions.Books.Default)]
 public class BookAppService : 
     CrudAppService<Book, BookDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateBookDto>,
     IBookAppService
@@ -28,11 +17,11 @@ public class BookAppService :
     public BookAppService(IRepository<Book, Guid> repository, IAuthorRepository authorRepository)
         : base(repository)
     {
-        GetPolicyName = BookStorePermissions.Books.Default;
-        GetListPolicyName = BookStorePermissions.Books.Default;
-        CreatePolicyName = BookStorePermissions.Books.Create;
-        DeletePolicyName = BookStorePermissions.Books.Default;
-        UpdatePolicyName = BookStorePermissions.Books.Edit;
+        // GetPolicyName = BookStorePermissions.Books.Default;
+        // GetListPolicyName = BookStorePermissions.Books.Default;
+        // CreatePolicyName = BookStorePermissions.Books.Create;
+        // DeletePolicyName = BookStorePermissions.Books.Default;
+        // UpdatePolicyName = BookStorePermissions.Books.Edit;
         _authorRepository = authorRepository;
     }
 
